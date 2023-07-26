@@ -1,0 +1,997 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Controller, useForm } from 'react-hook-form';
+import { trackPromise } from 'react-promise-tracker';
+import moment, { Moment } from 'moment';
+
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormHelperText from '@mui/material/FormHelperText';
+import FormLabel from '@mui/material/FormLabel';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableRow from '@mui/material/TableRow';
+import RadioGroup from '@mui/material/RadioGroup';
+import TableHead from '@mui/material/TableHead';
+
+import Button from '@q2c-lib/button';
+import TextField from '@q2c-lib/text-field';
+import Checkbox from '@q2c-lib/checkbox';
+import Radio from '@q2c-lib/radio';
+
+import { AssemblyTypeAutoComplete } from 'app/main/molecules/auto-complete/Index';
+import { AssemblyTypeMultiSelect } from 'app/main/molecules/multi-select/Index';
+import DateRangePicker from 'app/main/molecules/date-range-picker/Index';
+import { DatePicker } from 'app/main/templates/date-picker/Index';
+import { selectDataKeys } from 'app/store/fuse/dataKeysSlice';
+import DataConstant from 'app/constant/dataConstant';
+import ImportFileColumnMapping from '../atoms/import-file-column-mapping/Index';
+interface FormProps {
+  Assembly: null | string | number;
+  Multiselect: [] | null;
+  TextField: string | null;
+  Amount: number | null;
+  SixDigitUnit: number | null;
+  Unit: number | null;
+  UnitPrice: number | null;
+  LowerCase: string | null;
+  FolderRestrict: string | null;
+  SpecialCharRestrict: string | null;
+  SpecialCharStrictRestrict: string | null;
+  AllowSpecialChar: string | null;
+  RadioGroup: string | null;
+  Checkbox: boolean | undefined;
+  PODate: Moment | null;
+  DateRangePicker: String | null;
+}
+interface Refs {
+  [key: string]: any;
+}
+
+const ReactHookTempTest = () => {
+  const DATA_KEYS = useSelector(selectDataKeys);
+  const [formData, setFormData] = useState<any>({});
+  const [requiredFlag, setRequiredFlag] = useState<boolean>(true);
+  const [readOnlyFlag, setReadOnlyFlag] = useState<boolean>(false);
+  /**
+   *DM: this state are used to handle all loader
+   */
+  const [sectionOneData, setSectionOneData] = useState<[]>([]);
+  const [sectionTwoData, setSectionTwoData] = useState<[]>([]);
+  const [sectionThreeData, setSectionThreeData] = useState<[]>([]);
+  const [sectionFourData, setSectionFourData] = useState<[]>([]);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+    watch,
+  } = useForm<FormProps>({
+    defaultValues: {
+      Assembly: null || '',
+      Multiselect: null || [],
+      TextField: null || '',
+      Amount: null,
+      SixDigitUnit: null,
+      Unit: null,
+      UnitPrice: null,
+      LowerCase: null,
+      AllowSpecialChar: null,
+      SpecialCharStrictRestrict: null,
+      SpecialCharRestrict: null,
+      FolderRestrict: null,
+      RadioGroup: null,
+      Checkbox: undefined || false,
+      PODate: null,
+      DateRangePicker: null,
+    },
+	mode:"all"
+  });
+
+  const formRefElements = ['Assembly', 'Multiselect', 'DateRangePicker'];
+  const refs = useRef<Refs>({});
+  for (const element of formRefElements) {
+    refs.current[element] = useRef(null);
+  }
+  const customReset = () => {
+    for (const element of formRefElements) {
+      if (refs.current[element]?.current?.reset) {
+        refs.current[element].current.reset();
+      }
+    }
+    reset();
+  };
+
+  const onSubmit = (data: any) => {
+    console.log(data);
+    setFormData(data);
+  };
+
+  const validate = (data: any) => {
+    // if (data.DateRangePicker.selectedValue === "LIFE_TIME") {
+    //   setRequiredFlag(false);
+    // }
+    // else if(data.DateRangePicker.selectedValue === "TILL_DATE"){
+    //   setRequiredFlag(false);
+    // }
+    onSubmit(data);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setValue('PODate', moment('2022-04-07 12:45:55'));
+      setValue('TextField', 'PreFilled Text Field');
+      setValue('LowerCase', 'lowercase');
+      setValue('FolderRestrict', null);
+      setValue('SpecialCharRestrict', null);
+      setValue('SpecialCharStrictRestrict', null);
+      setValue('AllowSpecialChar', null);
+      setValue('Amount', null);
+      setValue('SixDigitUnit', null);
+      setValue('Unit', null);
+      setValue('UnitPrice', null);
+      setValue('RadioGroup', 'Contains');
+      setValue('Checkbox', true);
+      setValue('Assembly', null);
+      setValue('DateRangePicker', null);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const fetchSectionOneData = () => {
+    trackPromise(
+      fetch('https://jsonplaceholder.typicode.com/users')
+        .then((response) => response.json())
+        .then((data) => {
+          setSectionOneData(data);
+          console.log('DM', data);
+        }),
+      'section1'
+    );
+  };
+  const fetchSectionTwoData = () => {
+    trackPromise(
+      fetch('https://jsonplaceholder.typicode.com/users')
+        .then((response) => response.json())
+        .then((data) => {
+          setSectionTwoData(data);
+          console.log('DM', data);
+        }),
+      'section2'
+    );
+  };
+  const fetchSectionThreeData = () => {
+    trackPromise(
+      fetch('https://jsonplaceholder.typicode.com/users')
+        .then((response) => response.json())
+        .then((data) => {
+          setSectionThreeData(data);
+          console.log('DM', data);
+        }),
+      'section3'
+    );
+  };
+  const fetchSectionFourData = () => {
+    trackPromise(
+      fetch('https://jsonplaceholder.typicode.com/users')
+        .then((response) => response.json())
+        .then((data) => {
+          setSectionFourData(data);
+          console.log('DM', data);
+        }),
+      'section4'
+    );
+  };
+
+  return (
+    <div className="w-full flex flex-col flex-auto">
+      {/* {JSON.stringify(errors)} */}
+      <form className="cm-form" onSubmit={handleSubmit(validate)} noValidate>
+        <CardContent sx={{ padding: '12px' }}>
+          <h2>React hook Form</h2>
+          <Grid container spacing={0.5}>
+            <TableContainer
+              sx={{ height: '100%' }}
+              component={Paper}
+              variant="outlined"
+            >
+              <Table size="small">
+                <TableBody>
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>Text Field</FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="TextField"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'TextField is required.',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <TextField
+                            {...field}
+                            inputRef={ref}
+                            value={value}
+                            customInputProps={{
+                              errorMessage:
+                                errors?.TextField?.message?.toString(),
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>Text Field [Lowercase]</FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="LowerCase"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Required.',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <TextField
+                            {...field}
+                            inputRef={ref}
+                            value={value}
+                            name="LowerCase"
+                            customInputProps={{
+                              lowercase: true,
+                              errorMessage:
+                                errors?.LowerCase?.message?.toString(),
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>
+                        Folder Character Restriction
+                      </FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="FolderRestrict"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Required.',
+                          },
+                          pattern: {
+                            value:
+                              DataConstant.REGEX.FOLDER_NO_SPECIAL_CHARACTER,
+                            message: 'Invalid!',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <TextField
+                            {...field}
+                            inputRef={ref}
+                            value={value}
+                            name="FolderRestrict"
+                            customInputProps={{
+                              errorMessage:
+                                errors?.FolderRestrict?.message?.toString(),
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>
+                        Special Character Restriction
+                      </FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="SpecialCharRestrict"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Required.',
+                          },
+                          pattern: {
+                            value: DataConstant.REGEX.NO_SPECIAL_CHARACTER,
+                            message: 'Invalid!',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <TextField
+                            {...field}
+                            inputRef={ref}
+                            value={value}
+                            name="SpecialCharRestrict"
+                            customInputProps={{
+                              errorMessage:
+                                errors?.SpecialCharRestrict?.message?.toString(),
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>
+                        Special Character Strict Restriction
+                      </FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="SpecialCharStrictRestrict"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Required.',
+                          },
+                          pattern: {
+                            value:
+                              DataConstant.REGEX.NO_SPECIAL_CHARACTER_STRICT,
+                            message: 'Invalid!',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <TextField
+                            {...field}
+                            inputRef={ref}
+                            value={value}
+                            name="SpecialCharStrictRestrict"
+                            customInputProps={{
+                              errorMessage:
+                                errors?.SpecialCharStrictRestrict?.message?.toString(),
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell component="th" align="right">
+                      {/* <FormLabel required>Allow Special Characters</FormLabel> */}
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      {/* <Controller
+                        name="AllowSpecialChar"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Required.',
+                          },
+                          pattern: {
+                            value:
+                              DataConstant.REGEX.ALLOW_SPECIAL_CHARACTER_STRICT,
+                            message: 'Invalid!',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <TextField
+                            {...field}
+                            inputRef={ref}
+                            value={value}
+                            name="AllowSpecialChar"
+                            customInputProps={{
+                              errorMessage:
+                                errors?.AllowSpecialChar?.message?.toString(),
+                            }}
+                          />
+                        )}
+                      /> */}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>AutoComplete</FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="Assembly"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Assembly is required.',
+                          },
+                        }}
+                        render={({
+                          field: { onChange, ref, onBlur, value, ...field },
+                        }) => (
+                          <AssemblyTypeAutoComplete
+                            {...field}
+                            value={value}
+                            ref={refs.current.Assembly}
+                            textFieldProps={{
+                              autoFocus: true,
+                              ref: ref,
+                              customInputProps: {
+                                errorMessage:
+                                  errors?.Assembly?.message?.toString(),
+                              },
+                            }}
+                            customAutoCompleteProps={{
+                              isServerSide: true,
+                              isShowInactiveRecordsChkBox: true,
+                              isShowInactiveRecords: true,
+                              inActiveRecordFieldName: 'isActive',
+                              isSelectableInactiveRecords: true,
+                              onSelectCallbackFn: (param1) => {
+                                if (true) {
+                                  onChange(
+                                    (param1 && Array.isArray(param1)
+                                      ? param1.map((x: any) => x.id)
+                                      : []) as any
+                                  );
+                                } else {
+                                  onChange(param1?.id || null);
+                                }
+                              },
+                              multiSelect: true,
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>Multiselect</FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="Multiselect"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Multiselect is required.',
+                          },
+                        }}
+                        render={({
+                          field: { onChange, value, ref, ...field },
+                        }) => (
+                          <AssemblyTypeMultiSelect
+                            {...field}
+                            value={value}
+                            ref={refs.current.Multiselect}
+                            textFieldProps={{
+                              ref: ref,
+                            }}
+                            customMultiSelectProps={{
+                              onSelectCallbackFn: (param: any) => {
+                                onChange(param);
+                              },
+                              helperText:
+                                errors?.Multiselect?.message?.toString(),
+                              isShowInactiveRecords: true,
+                              isShowInactiveRecordsChkBox: true,
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>Amount Field</FormLabel>
+                    </TableCell>
+                    <TableCell>
+                      <Controller
+                        name="Amount"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Required.',
+                          },
+                          max: {
+                            value: 10,
+                            message: 'Invalid.',
+                          },
+                          min: {
+                            value: 1,
+                            message: 'Invalid.',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <TextField
+                            {...field}
+                            inputRef={ref}
+                            type="number"
+                            value={value}
+                            InputProps={{
+                              inputProps: {
+                                min: 1,
+                                max: 10,
+                                step: DATA_KEYS?._amountInputStep,
+                              },
+                            }}
+                            customInputProps={{
+                              errorMessage: errors?.Amount?.message?.toString(),
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>SixDigitUnit Field</FormLabel>
+                    </TableCell>
+                    <TableCell>
+                      <Controller
+                        name="SixDigitUnit"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Required.',
+                          },
+                          max: {
+                            value: 10,
+                            message: 'Invalid.',
+                          },
+                          min: {
+                            value: 1,
+                            message: 'Invalid.',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <TextField
+                            {...field}
+                            inputRef={ref}
+                            type="number"
+                            value={value}
+                            InputProps={{
+                              inputProps: {
+                                min: 1,
+                                max: 10,
+                                step: DATA_KEYS?._sixDigitUnitInputStep,
+                              },
+                            }}
+                            customInputProps={{
+                              errorMessage:
+                                errors?.SixDigitUnit?.message?.toString(),
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>Unit Field</FormLabel>
+                    </TableCell>
+                    <TableCell>
+                      <Controller
+                        name="Unit"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Required.',
+                          },
+                          max: {
+                            value: 10,
+                            message: 'Invalid.',
+                          },
+                          min: {
+                            value: 1,
+                            message: 'Invalid.',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <TextField
+                            {...field}
+                            inputRef={ref}
+                            type="number"
+                            value={value}
+                            InputProps={{
+                              inputProps: {
+                                min: 1,
+                                max: 10,
+                                step: DATA_KEYS?._unitInputStep,
+                              },
+                            }}
+                            customInputProps={{
+                              errorMessage: errors?.Unit?.message?.toString(),
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>UnitPrice Field</FormLabel>
+                    </TableCell>
+                    <TableCell>
+                      <Controller
+                        name="UnitPrice"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Required.',
+                          },
+                          max: {
+                            value: 10,
+                            message: 'Invalid.',
+                          },
+                          min: {
+                            value: 1,
+                            message: 'Invalid.',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <TextField
+                            {...field}
+                            inputRef={ref}
+                            type="number"
+                            value={value}
+                            InputProps={{
+                              inputProps: {
+                                min: 1,
+                                max: 10,
+                                step: DATA_KEYS?._unitPriceInputStep,
+                              },
+                            }}
+                            customInputProps={{
+                              errorMessage:
+                                errors?.UnitPrice?.message?.toString(),
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    {/* <TableCell component="th" align="right">
+                        <FormLabel required>Select</FormLabel>
+                      </TableCell>
+                      <TableCell>
+                        <Controller
+                          name="select"
+                          control={control}
+                          rules={{
+                            required: {
+                              value: true,
+                              message: "select is required.",
+                            },
+                          }}
+                          render={({
+                            field: { onChange, ref, value,onBlur, ...field }
+                          }) => (
+                            <FormControl fullWidth>
+                              <Select
+                              {...field}
+                              ref={ref}
+                               variant="outlined" fullWidth
+                               dataSource={DataConstant?.CommonDateFilterSearchCriteria}
+                               keyFieldName="id"
+                               displayFieldName="value"
+                               value={null}
+                               onBlur={()=>{
+                                console.log("value")
+                               }}
+                               onSelectCallbackFn={onChange}
+                               isEditVisible={true}
+                               errorMessage={errors?.select?.message}
+                               >
+                              </Select>
+                            </FormControl>
+                          )}
+                        />
+                      </TableCell> */}
+                  </TableRow>
+                  {/* Date range picker component */}
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>Date Filter</FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="DateRangePicker"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: !readOnlyFlag,
+                            message: 'This field is required.',
+                          },
+                        }}
+                        render={({
+                          field: { onChange, ref, value, ...field },
+                          fieldState: { error },
+                        }) => (
+                          <FormControl fullWidth>
+                            <DateRangePicker
+                              {...field}
+                              value={value}
+                              ref={refs.current.DateRangePicker}
+                              variant="standard"
+                              onSelectCallbackFn={onChange}
+                              error={!!error}
+                              errorMessage="Required!"
+                              readOnly={readOnlyFlag}
+                              required={requiredFlag}
+                            />
+                          </FormControl>
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>PO Date</FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="PODate"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'PODate is required.',
+                          },
+                        }}
+                        render={({ field: { onChange, value, ...field } }) => (
+                          <DatePicker
+                            {...field}
+                            value={value}
+                            onValueChange={onChange}
+                            textFieldProps={{
+                              customInputProps: {
+                                errorMessage:
+                                  errors?.PODate?.message?.toString(),
+                              },
+                            }}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>Select Amount Type</FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="RadioGroup"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'RadioGroup is required.',
+                          },
+                        }}
+                        render={({ field: { ref, value, ...field } }) => (
+                          <FormControl error={!!errors.RadioGroup}>
+                            <RadioGroup {...field} value={value}>
+                              <FormControlLabel
+                                value="Contains"
+                                control={<Radio />}
+                                label="Contains"Fradio
+                                inputRef={ref}
+                              />
+                              <FormControlLabel
+                                value="Exact"
+                                control={<Radio />}
+                                label="Exact"
+                                inputRef={ref}
+                              />
+                            </RadioGroup>
+                            <FormHelperText>
+                              {errors?.RadioGroup?.message}
+                            </FormHelperText>
+                          </FormControl>
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell component="th" align="right">
+                      <FormLabel required>
+                        You want to active this data
+                      </FormLabel>
+                    </TableCell>
+                    <TableCell colSpan={3}>
+                      <Controller
+                        name="Checkbox"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: 'Checkbox is required.',
+                          },
+                        }}
+                        render={({
+                          field: { onChange, value, onBlur, ref, ...field },
+                        }) => (
+                          <FormControl error={!!errors.Checkbox}>
+                            <FormControlLabel
+                              label="Active data"
+                              control={
+                                <Checkbox
+                                  {...field}
+                                  checked={value}
+                                  onBlur={onBlur}
+                                  onChange={onChange}
+                                />
+                              }
+                            />
+                            <FormHelperText>
+                              {errors?.Checkbox?.message}
+                            </FormHelperText>
+                          </FormControl>
+                        )}
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+        </CardContent>
+        <CardActions
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            paddingRight: '15px',
+          }}
+        >
+          <Button type="submit" variant="contained">
+            Submit
+          </Button>
+          <Button
+            className="mx-8 mt-2"
+            type="button"
+            onClick={() => {
+              customReset();
+            }}
+          >
+            Reset Form
+          </Button>
+        </CardActions>
+      </form>
+
+      {/* <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Grid container spacing={2}>
+            <Grid item xs={6} id="testGrid">
+              <Button variant="contained" onClick={fetchSectionOneData}>
+                Section first data load
+              </Button>
+
+              <TableContainer component={Paper} className="relative">
+                <Spinner area="section1" />
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <h1>Name of Student</h1>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {sectionOneData.map((row: any) => (
+                      <TableRow key={row?.id}>
+                        <TableCell>{row?.name}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
+            <Grid item xs={6} className="relative">
+              <Button variant="contained" onClick={fetchSectionTwoData}>
+                Section two data load
+              </Button>
+              <TableContainer component={Paper} className="relative">
+                <Spinner area="section2" />
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <h1>Name of Student 2</h1>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {sectionTwoData.map((row: any) => (
+                      <TableRow key={row?.id}>
+                        <TableCell>{row?.name}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <Grid container spacing={2}>
+            <Grid item xs={6} className="relative">
+              <Button variant="contained" onClick={fetchSectionThreeData}>
+                Section three data load
+              </Button>
+
+              <TableContainer component={Paper} className="relative">
+                <Spinner area="section3" />
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <h1>Name of Student 3</h1>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {sectionThreeData.map((row: any) => (
+                      <TableRow key={row?.id}>
+                        <TableCell>{row?.name}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
+            <Grid item xs={6} className="relative">
+              <Button
+                variant="contained"
+                type="button"
+                onClick={() => {
+                  fetchSectionFourData();
+                }}
+              >
+                Section for data fetch
+              </Button>
+              <TableContainer component={Paper} className="relative">
+                <Spinner area="section4" />
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <h1>Name of Student 4</h1>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {sectionFourData.map((row: any) => (
+                      <TableRow key={row?.id}>
+                        <TableCell>{row?.name}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid> */}
+      <ImportFileColumnMapping
+        displayName="IMPORT MFR Column Mapping"
+        systemMappingList={DataConstant.COLUMN_MAPPING.WO_PROD_ACTIVITY}
+        onMappedJsonData={(data: any) => {
+          console.log('Mapped JSON Data', data);
+        }}
+      />
+
+      <ImportFileColumnMapping
+        displayName="IMPORT MFR Column Mapping (Confirmation)"
+        appendRemoveConfirmationRequired={true}
+        systemMappingList={DataConstant.COLUMN_MAPPING.WO_PROD_ACTIVITY}
+        onMappedJsonData={(data: any) => {
+          console.log('Mapped JSON Data', data);
+        }}
+      />
+    </div>
+  );
+};
+
+export default ReactHookTempTest;
