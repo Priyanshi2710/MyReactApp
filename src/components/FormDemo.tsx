@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-
-
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
+import dayjs from "dayjs";
+import { DateRange } from "@mui/x-date-pickers-pro";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import {
   TextField,
@@ -29,7 +29,17 @@ interface FormProps {
   Amount: number | null;
   Select: string | null;
   Autocomplete: { label: string; value: string } | null;
-  selectedDate?: Date | null|undefined ;
+  selectedDate: Date ;
+  // dateRange: {
+  //   start: Date;
+  //   end: Date;
+  // };
+  // DateRange: DateRange<Dayjs>;
+
+  DateRange?: [any?, any?] | undefined
+
+  //dateRange: [dayjs().subtract(1, "week").toDate(), dayjs().toDate()],
+  //defaultValue?: DateRange<dayjs.Dayjs>
 }
 
 //------Select code running
@@ -52,6 +62,7 @@ const maritalStatusOptions = [
 // const options = ["Option 1", "Option 2"];
 export const FormDemo = () => {
   const [formData, setFormData] = useState<any>({});
+  const date = new Date();
   const form = useForm<FormProps>({
     defaultValues: {
       RadioButton: null,
@@ -60,7 +71,10 @@ export const FormDemo = () => {
       Amount: null,
       Select: "",
       Autocomplete: null,
-      selectedDate:null,
+      selectedDate:date,
+      DateRange: [dayjs().subtract(1, "week").toDate(), dayjs().toDate()],
+      
+      
     },
   });
 
@@ -83,15 +97,36 @@ export const FormDemo = () => {
     { label: "Schindler's List", value: "1993" },
     { label: "Pulp Fiction", value: "1994" },
   ];
-  const { control, handleSubmit, watch, setValue, formState } = form;
+  const { control, handleSubmit, setValue, formState } = form;
+  
   const onSubmit = (data: FormProps) => {
+    
+    // const selectedDateString = '2023-07-28';
+    // const selectedDate = new Date(selectedDateString);
+    // const formattedDate = selectedDate.toLocaleDateString('en-GB');
+    // console.log(formattedDate);
+    // if(data.selectedDate){
+    //   const fd =`${data.selectedDate.getDate()}${data.selectedDate.getMonth() + 1}${data.selectedDate.getFullYear()}`; 
+    //   setStoredDate(fd);
+    //   console.log(storedDate);
+    // }
     console.log("form submitted..", data);
-    setFormData(data);
+    // console.log(storedDate);
+    var date = new Date(data.selectedDate);
+    var d = new Date(date.toLocaleDateString());
+    data.selectedDate = new Date((d.getUTCDate())+ "/" + (d.getUTCMonth() + 1) +  "/" + (d.getUTCFullYear()));
+    
+    
+    
+      setFormData(data);
+      
   };
-  const tomorrow = dayjs().add(1, 'day');
+ 
+  
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <Controller
+
+<Controller
         name="Amount"
         control={control}
         rules={{
@@ -229,7 +264,7 @@ export const FormDemo = () => {
             message: "check box is required.",
           },
         }}
-        render={({ field: {  onBlur, ...field } }) => (
+        render={({ field: { onBlur, ...field } }) => (
           <FormGroup>
             <FormControlLabel
               control={
@@ -239,7 +274,6 @@ export const FormDemo = () => {
                   // checked={value}
                   // onChange={onChange}
                   value="true"
-                  
                 />
               }
               label="Married"
@@ -253,7 +287,6 @@ export const FormDemo = () => {
                   // checked={value}
                   //onChange={onChange}
                   value="false"
-                 
                 />
               }
               label="Not Married"
@@ -321,6 +354,50 @@ export const FormDemo = () => {
           />
         )}
       />
+       <Controller
+        name="DateRange"
+        control={control}
+        rules={{
+          required: {
+            value: true,
+            message: "please select any.",
+          },
+        }}
+        render={({ field: { value, onChange, onBlur, ...field } }) => (
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateRangePicker
+              format="DD/MM/YYYY"
+              localeText={{ start: "Check-in", end: "Check-out" }}
+            />
+          </LocalizationProvider>
+        )}
+      />
+
+{/*  -- old datepicker running
+<Controller
+        name="selectedDate"
+        control={control}
+        rules={{
+          required: {
+            value: true,
+            message: "please select any.",
+          },
+        }}
+        render={({ field: { value,onChange,ref,onBlur, ...field } }) => (
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+            {...field}
+              format="DD/MM/YYYY"
+              //onChange={(newValue) => setValue("selectedDate", newValue)}
+              label="Basic date picker"
+              value={value}
+            />
+          </LocalizationProvider>
+        )}
+      /> */}
+
+      <h2>date changes UTC</h2>
+
       <Controller
         name="selectedDate"
         control={control}
@@ -330,25 +407,30 @@ export const FormDemo = () => {
             message: "please select any.",
           },
         }}
-        render={({ field: { value,onChange, onBlur, ...field } }) => (
+        render={({ field: { value,onChange , ...field }  }) => (
           <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+            {...field}
+              format="DD/MM/YYYY"
+              label="Basic date picker"
+              
+              
+            //  onChange={(newValue: number | null | undefined) => setValue("selectedDate",newValue)}
+             
+             onChange={(newValue:any) => setValue("selectedDate",newValue)}
+            //  value={newValue}
+          
+              //onChange={(newValue) => setValue("selectedDate",newValue)}
       
-        <DatePicker 
-        value={value}
-       onChange={(newValue) => setValue("selectedDate",newValue)}
-      //  onChange={(event, value) => {
-      //   setValue("selectedDate", value);
-      // }}
-        
-        label="Basic date picker" />
-   
-    </LocalizationProvider>
+            />
+          </LocalizationProvider>
         )}
       />
-
       <Button type="submit" variant="contained">
         Submit
       </Button>
     </form>
   );
 };
+
+
